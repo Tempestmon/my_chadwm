@@ -1,0 +1,19 @@
+* {
+  all: unset;
+}
+
+
+.brightness {
+  trough highlight {
+    background-color: $red;
+    border-radius: 10px;
+  }
+}
+
+.brightness trough {
+  background-color: $grey;
+  border-radius: 1rem;
+  min-width: 16rem;
+  min-height: .5rem;
+  margin-bottom: 2rem;
+}
