@@ -6,59 +6,65 @@
 interval=0
 
 # load colors
-. ~/.config/chadwm/scripts/bar_themes/onedark
+. ~/.config/chadwm/scripts/bar_themes/rosepine
 
 cpu() {
   cpu_val=$(grep -o "^[^ ]*" /proc/loadavg)
 
-  printf "^c$black^ ^b$green^ "
-  printf "^c$white^ ^b$grey^ $cpu_val"
+  printf "^c$green^ "
+  printf "^c$green^ $cpu_val"
 }
 
 pkg_updates() {
-  #updates=$({ timeout 20 doas xbps-install -un 2>/dev/null || true; } | wc -l) # void
-  updates=$({ timeout 20 checkupdates 2>/dev/null || true; } | wc -l) # arch
-  # updates=$({ timeout 20 aptitude search '~U' 2>/dev/null || true; } | wc -l)  # apt (ubuntu, debian etc)
-
-  if [ -z "$updates" ]; then
-    printf "  ^c$green^    Fully Updated"
+  updates=$({ timeout 20 apt list --upgradable 2>/dev/null || true; } | grep -c upgradable)
+  if [ "$updates" -eq 0 ]; then
+    printf "  ^c$green^    Fully Updated"
   else
-    printf "  ^c$green^    $updates"" updates"
+    printf "  ^c$green^    $updates updates"
   fi
 }
 
 battery() {
-  get_capacity="$(cat /sys/class/power_supply/BAT1/capacity)"
-  printf "^c$blue^   $get_capacity"
+  get_capacity="$(cat /sys/class/power_supply/BAT0/capacity)"
+  online=$(cat /sys/class/power_supply/AC/online)
+  if [ "$online" -eq 1 ]; then
+	printf "^c$green^ 󰂄 $get_capacity %s%%"
+  else
+	if [ "$get_capacity" -le 10 ]; then
+		printf "^c$red^ 󰂃 $get_capacity %s%%"
+	else
+		printf "^c$blue^ 󰁹 $get_capacity %s%%"
+	fi
+  fi
 }
 
 brightness() {
-  printf "^c$red^   "
-  printf "^c$red^%.0f\n" $(cat /sys/class/backlight/*/brightness)
+  printf "^c$white^ 󰛨"
+  printf "^c$white^%.0f%s%%\n" $(light -G)
 }
 
 mem() {
-  printf "^c$blue^^b$black^  "
+  printf "^c$blue^  "
   printf "^c$blue^ $(free -m | awk '/^Mem/ { print $3 }' | sed s/i//g)MiB"
 }
 
 wlan() {
 	case "$(cat /sys/class/net/wl*/operstate 2>/dev/null)" in
-	up) printf "^c$black^ ^b$blue^ 󰤨 ^d^%s" " ^c$blue^Connected" ;;
-	down) printf "^c$black^ ^b$blue^ 󰤭 ^d^%s" " ^c$blue^Disconnected" ;;
+	up) printf "^c$blue^ 󰤨 ^d^%s" " ^c$blue^Connected" ;;
+	down) printf "^c$blue^ 󰤭 ^d^%s" " ^c$blue^Disconnected" ;;
 	esac
 }
 
 clock() {
-	printf "^c$black^ ^b$darkblue^ 󱑆 "
-	printf "^c$black^^b$blue^ $(date '+%H:%M:%S')  "
+	printf "^c$darkblue^  󱑆 "
+	printf "^c$blue^ $(date '+%d.%m.%y %H:%M:%S')  "
 }
 
 cpu_temp() {
-	temp=$(sensors k10temp-pci-00c3 -j | jq '."k10temp-pci-00c3".Tccd1.temp3_input')
+	temp=$(sensors coretemp-isa-0000 -j | jq '."coretemp-isa-0000"."Package id 0".temp1_input')
 	temp_rounded=$(printf "%.0f" $temp)
-	printf "^c$black^ ^b$green^ "
-	printf "^c$white^ ^b$grey^ $temp_rounded°C"
+	printf "^c$green^ "
+	printf "^c$green^ $temp_rounded°C"
 }
 
 gpu_usage() {
@@ -86,10 +92,27 @@ vpn_status() {
 	esac
 }
 
+dwm_alsa () {
+    STATUS=$(amixer sget Master | tail -n1 | sed -r "s/.*\[(.*)\]/\1/")
+    VOL=$(amixer get Master | tail -n1 | sed -r "s/.*\[(.*)%\].*/\1/")
+    printf "%s" "$SEP1"
+    if [ "$STATUS" = "off" ]; then
+	    printf "^c$red^ "
+    else
+	#removed this line becuase it may get confusing
+	if [ "$VOL" -gt 0 ] && [ "$VOL" -le 33 ]; then
+	    printf "^c$green^  %s%%" "$VOL"
+	elif [ "$VOL" -gt 33 ] && [ "$VOL" -le 66 ]; then
+	    printf "^c$green^  %s%%" "$VOL"
+	else
+	    printf "^c$green^  %s%%" "$VOL"
+	fi
+    fi
+    printf "%s\n" "$SEP2"
+}
+
 while true; do
-
-  [ $interval = 0 ] || [ $(($interval % 3600)) = 0 ] && updates=$(pkg_updates)
+  [ $interval = 0 ] || [ $(($interval % 7200)) = 0 ] && updates=$(pkg_updates)
   interval=$((interval + 1))
-
-  sleep 1 && xsetroot -name "$(vpn_status) $(gpu_usage) $(gpu_mem) $(gpu_temp) $(cpu) $(cpu_temp) $(mem) $(clock)"
+  sleep 0.5 && xsetroot -name "$(dwm_alsa) $(brightness) $(battery) $(wlan) $(cpu) $(cpu_temp) $(mem) $updates $(clock)"
 done
