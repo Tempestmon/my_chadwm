@@ -1,0 +1,28 @@
+#!/bin/sh
+exec 2>&1
+
+VPS_IP="132.243.174.74"
+TUN="tun0"
+
+# Wait for xray to be up; runit will restart us if it isn't
+sv check xray >/dev/null || exit 1
+
+GW=$(ip route show default | awk '{print $3; exit}')
+IFACE=$(ip route show default | awk '{print $5; exit}')
+if [ -z "$GW" ] || [ -z "$IFACE" ]; then
+    echo "no default route, retrying"
+    sleep 5
+    exit 1
+fi
+
+ip tuntap add mode tun dev "$TUN" 2>/dev/null
+ip addr replace 198.18.0.1/15 dev "$TUN"
+ip link set "$TUN" up
+
+# Keep the tunnel to the VPS itself outside of tun0
+ip route replace "$VPS_IP" via "$GW" dev "$IFACE"
+# Two /1 routes override the default route without replacing it
+ip route replace 0.0.0.0/1 dev "$TUN"
+ip route replace 128.0.0.0/1 dev "$TUN"
+
+exec /usr/local/bin/tun2socks --device "$TUN" --proxy socks5://127.0.0.1:35555 --loglevel warn
