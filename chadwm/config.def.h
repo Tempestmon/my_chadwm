@@ -39,23 +39,21 @@ static const int scalepreview = 4;
 static const int tag_preview = 0; /* 1 means enable, 0 is off */
 static const int colorfultag =
     1; /* 0 means use SchemeSel for selected non vacant tag */
-static const char *upvol[] = {"/usr/bin/pactl", "set-sink-volume", "0", "+5%",
-                              NULL};
-static const char *downvol[] = {"/usr/bin/pactl", "set-sink-volume", "0", "-5%",
-                                NULL};
-static const char *mutevol[] = {"/usr/bin/pactl", "set-sink-mute", "0",
-                                "toggle", NULL};
+static const char *upvol[]   = {"wpctl", "set-volume", "-l", "1.0", "@DEFAULT_AUDIO_SINK@", "5%+", NULL};
+static const char *downvol[] = {"wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%-", NULL};
+static const char *mutevol[] = {"wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle", NULL};
+static const char *mutemic[] = {"wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle", NULL};
 static const char *light_up[] = {"/usr/bin/light", "-A", "5", NULL};
 static const char *light_down[] = {"/usr/bin/light", "-U", "5", NULL};
 static const int new_window_attach_on_end =
     0; /*  1 means the new window will attach on the end; 0 means the new window
           will attach on the front,default is front */
-#define ICONSIZE 18   /* icon size */
+#define ICONSIZE 24   /* icon size */
 #define ICONSPACING 8 /* space between icon and title */
 
 static const char *fonts[] = {
-    "Iosevka:style:medium:size=12",
-    "JetBrainsMono Nerd Font Mono:style:medium:size=28"};
+    "Iosevka:style:medium:size=12",                       /* text, defines bar height */
+    "JetBrainsMono Nerd Font Mono:style:medium:size=24"}; /* fallback for icons */
 
 // theme
 #include "themes/nord.h"
@@ -159,7 +157,7 @@ static const Layout layouts[] = {
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd)                                                             \
   {                                                                            \
-    .v = (const char *[]) { "/bin/sh", "-c", cmd, NULL }                       \
+    .v = (const char *[]) { "/usr/bin/zsh", "-c", cmd, NULL }                       \
   }
 
 /* commands */
