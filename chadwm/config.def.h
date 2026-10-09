@@ -268,7 +268,7 @@ static const Key keys[] = {
     {MODKEY | ShiftMask, XK_e, restorewin, {0}},
 
     // buffer
-    {MODKEY | ShiftMask, XK_c, spawn, SHCMD("clipmenu")},
+    {MODKEY | ShiftMask, XK_c, spawn, SHCMD("CM_LAUNCHER=rofi clipmenu -p clipboard")},
 
     // lock
     {MODKEY | ControlMask, XK_l, spawn, SHCMD("loginctl lock-session")},
