@@ -31,6 +31,7 @@ ICON_DOWN='󰁅'  # U+F0045 nf-md-arrow_down
 ICON_UP='󰁝'  # U+F005D nf-md-arrow_up
 ICON_PKG='󰏖'  # U+F03D6 nf-md-package_variant
 ICON_CLOCK='󱑆'  # U+F1446 nf-md-clock_time_eight
+ICON_DND='󰂛'  # U+F009B nf-md-bell_off
 ICON_KBD='󰌌'  # U+F030C nf-md-keyboard
 ICON_VPN_OK='󰕥'  # U+F0565 nf-md-shield_check
 ICON_VPN_WARN='󰻌'  # U+F0ECC nf-md-shield_alert
@@ -143,6 +144,18 @@ start_layout_watcher() {
         done
     ) &
     watcher_pid=$!
+}
+
+dnd() {
+    # Shown only while dunst is paused ("do not disturb"), with the number of
+    # notifications waiting to be shown once it's turned off.
+    [ "$(dunstctl is-paused 2>/dev/null)" = "true" ] || return 0
+    waiting=$(dunstctl count waiting 2>/dev/null || echo 0)
+    if [ "${waiting:-0}" -gt 0 ] 2>/dev/null; then
+        printf '^c%s^%s DND %s' "$red" "$ICON_DND" "$waiting"
+    else
+        printf '^c%s^%s DND' "$red" "$ICON_DND"
+    fi
 }
 
 cpu_load() {
@@ -278,7 +291,7 @@ clock() {
 status_line() {
     # Empty blocks are dropped, so there are no double spaces in the bar.
     line=""
-    for block in "$(vpn)" "$(layout)" "$(volume)" "$(cpu_load)" "$(cpu_temp)" "$gpu_cache" \
+    for block in "$(dnd)" "$(vpn)" "$(layout)" "$(volume)" "$(cpu_load)" "$(cpu_temp)" "$gpu_cache" \
         "$(memory)" "$(disk)" "$net_cache" "$(updates)" "$(clock)"; do
         [ -n "$block" ] && line="$line  $block"
     done

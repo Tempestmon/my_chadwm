@@ -273,6 +273,11 @@ static const Key keys[] = {
     // lock
     {MODKEY | ControlMask, XK_l, spawn, SHCMD("slock")},
 
+    // notifications (dunst)
+    {MODKEY, XK_n, spawn, SHCMD("dunstctl close")},
+    {MODKEY | ShiftMask, XK_n, spawn, SHCMD("dunstctl history-pop")},
+    {MODKEY | ControlMask, XK_n, spawn, SHCMD("dunstctl set-paused toggle; pkill -USR1 -x bar.sh")},
+
     TAGKEYS(XK_1, 0) TAGKEYS(XK_2, 1) TAGKEYS(XK_3, 2) TAGKEYS(XK_4, 3)
         TAGKEYS(XK_5, 4) TAGKEYS(XK_6, 5) TAGKEYS(XK_7, 6) TAGKEYS(XK_8, 7)
             TAGKEYS(XK_9, 8)};
