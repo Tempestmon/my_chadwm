@@ -56,7 +56,7 @@ static const char *fonts[] = {
     "JetBrainsMono Nerd Font Mono:style:medium:size=24"}; /* fallback for icons */
 
 // theme
-#include "themes/nord.h"
+#include "themes/ultraviolet.h"
 
 static const char *colors[][3] = {
     /*                     fg       bg      border */

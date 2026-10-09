@@ -1,0 +1,4 @@
+# template                 output (relative to the repo root)
+chadwm.h.in                chadwm/themes/ultraviolet.h
+bar_theme.in               scripts/bar_themes/ultraviolet
+rofi.rasi.in               rofi/themes/ultraviolet.rasi

@@ -13,7 +13,7 @@ set -u
 
 script_dir=$(dirname "$(readlink -f "$0")")
 # Colors: black green white grey blue red darkblue
-. "$script_dir/bar_themes/rosepine"
+. "$script_dir/bar_themes/ultraviolet"
 
 # Icons are Nerd Fonts v3 glyphs. If one gets lost when copying, re-insert it
 # in Vim (insert mode): Ctrl+v, then U and the 8-digit code, e.g. U000F057E.
