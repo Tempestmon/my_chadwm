@@ -3,6 +3,9 @@
 # Placeholders look like @NAME@. Fails loudly on unknown names or bad colors,
 # so a typo never silently ends up in a config.
 #
+# Outputs are relative to the repo root, or start with ~/ for other repos
+# (e.g. ~/my_st/colors.h).
+#
 # Usage: theme/generate.sh [--check]   (--check: render to a temp dir only)
 set -eu
 
@@ -24,7 +27,13 @@ out_root=$repo_dir
 [ "$check_only" = "--check" ] && out_root=$(mktemp -d)
 
 grep -Ev '^[[:space:]]*(#|$)' "$theme_dir/targets" | while read -r template output; do
-    dest="$out_root/$output"
+    # Outputs starting with ~/ live outside this repo (e.g. the st repo)
+    # shellcheck disable=SC2088  # literal "~/" pattern match, not expansion
+    case $output in
+        "~/"*) if [ "$check_only" = "--check" ]; then dest="$out_root/home/${output#\~/}"
+               else dest="$HOME/${output#\~/}"; fi ;;
+        *)     dest="$out_root/$output" ;;
+    esac
     mkdir -p "$(dirname "$dest")"
     sed -f "$sed_script" "$theme_dir/templates/$template" > "$dest.tmp"
     if leftover=$(grep -o '@[A-Z0-9_]*@' "$dest.tmp" | sort -u | tr '\n' ' ') && [ -n "$leftover" ]; then

@@ -1,4 +1,5 @@
-# template                 output (relative to the repo root)
+# template                 output (repo-relative, or ~/... for other repos)
 chadwm.h.in                chadwm/themes/ultraviolet.h
 bar_theme.in               scripts/bar_themes/ultraviolet
 rofi.rasi.in               rofi/themes/ultraviolet.rasi
+st-colors.h.in             ~/my_st/colors.h
