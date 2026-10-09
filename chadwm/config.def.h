@@ -271,7 +271,7 @@ static const Key keys[] = {
     {MODKEY | ShiftMask, XK_c, spawn, SHCMD("clipmenu")},
 
     // lock
-    {MODKEY | ControlMask, XK_l, spawn, SHCMD("slock")},
+    {MODKEY | ControlMask, XK_l, spawn, SHCMD("loginctl lock-session")},
 
     // notifications (dunst)
     {MODKEY, XK_n, spawn, SHCMD("dunstctl close")},
