@@ -61,6 +61,7 @@ export CM_MAX_CLIPS=200
 export CM_IGNORE_WINDOW='KeePassXC' # regex on window title
 mkdir -p -m 700 "$CM_DIR"
 clipmenud &
+gammastep & # eye mode: 1800K from 20:00 (config: ~/.config/gammastep/config.ini)
 
 # Notifications
 dunst &
