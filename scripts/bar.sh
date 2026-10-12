@@ -57,6 +57,7 @@ cpu_hwmon=$(find_hwmon k10temp || true)
 # Personal VPN: Xray (SOCKS inbound) + tun2socks (TUN device -> SOCKS).
 # Override the interface name if your tun2socks uses a different one.
 vpn_iface=${BAR_VPN_IFACE:-tun0}
+work_iface=${BAR_WORK_IFACE:-ppp0}   # work FortiGate tunnel (openfortivpn)
 sys_net=${BAR_SYS_NET:-/sys/class/net}   # overridable for tests
 proc_dir=${BAR_PROC:-/proc}              # overridable for tests
 
@@ -80,6 +81,16 @@ volume() {
         icon=$ICON_VOL_HIGH
     fi
     printf '^c%s^%s %s%%' "$green" "$icon" "$pct"
+}
+
+ICON_WORK=$(printf '\357\202\261')   # nf-fa-briefcase (U+F0B1)
+work_vpn() {
+    # Work FortiGate tunnel (openfortivpn -> ppp0). Shown only while the
+    # interface exists and is up; one sysfs read, no process spawned.
+    # `forti up/down` send SIGUSR1 so the bar redraws immediately.
+    { read -r flags <"$sys_net/$work_iface/flags"; } 2>/dev/null || return 0
+    [ $((flags & 1)) -eq 1 ] || return 0   # IFF_UP
+    printf '^c%s^%s work' "${cyan:-$green}" "$ICON_WORK"
 }
 
 vpn() {
@@ -291,7 +302,7 @@ clock() {
 status_line() {
     # Empty blocks are dropped, so there are no double spaces in the bar.
     line=""
-    for block in "$(dnd)" "$(vpn)" "$(layout)" "$(volume)" "$(cpu_load)" "$(cpu_temp)" "$gpu_cache" \
+    for block in "$(dnd)" "$(vpn)" "$(work_vpn)" "$(layout)" "$(volume)" "$(cpu_load)" "$(cpu_temp)" "$gpu_cache" \
         "$(memory)" "$(disk)" "$net_cache" "$(updates)" "$(clock)"; do
         [ -n "$block" ] && line="$line  $block"
     done

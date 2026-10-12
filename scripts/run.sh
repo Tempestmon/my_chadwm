@@ -4,7 +4,7 @@
 sleep 1
 
 # Resolve sibling scripts relative to this file, so the repo can live anywhere
-script_dir=$(dirname "$(readlink -f "$0")") 
+script_dir=$(dirname "$(readlink -f "$0")")
 
 # X resources (Xft rendering, DPI) live in the repo next to this script
 xrdb -merge "$script_dir/../.Xresources"
@@ -51,7 +51,15 @@ bash "$script_dir/bar.sh" &
 # Language layout
 setxkbmap -layout "us,ru" -option "grp:win_space_toggle"
 
-# Clipboard
+# Clipboard history on disk so it survives reboots (default is tmpfs $XDG_RUNTIME_DIR).
+# Exported: clipmenu/clipdel launched later from chadwm keybinds and terminals
+# must use the same cache. Note: the disk is unencrypted; keep the history short
+# and never record password manager windows.
+export CM_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/clipmenu"
+export CM_SELECTIONS=clipboard # explicit copies only, not every mouse selection
+export CM_MAX_CLIPS=200
+export CM_IGNORE_WINDOW='KeePassXC' # regex on window title
+mkdir -p -m 700 "$CM_DIR"
 clipmenud &
 
 # Notifications
