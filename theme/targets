@@ -3,3 +3,5 @@ chadwm.h.in                chadwm/themes/ultraviolet.h
 bar_theme.in               scripts/bar_themes/ultraviolet
 rofi.rasi.in               rofi/themes/ultraviolet.rasi
 st-colors.h.in             ~/my_st/colors.h
+nvim-colors.lua.in         ~/.config/nvim/colors/ultraviolet.lua
+dunstrc.in                 dunst/dunstrc
